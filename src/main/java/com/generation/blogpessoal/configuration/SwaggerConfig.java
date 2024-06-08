@@ -42,7 +42,7 @@ public class SwaggerConfig {
 
                 apiResponses.addApiResponse("200", createApiResponse("Deu bom! 😎"));
                 apiResponses.addApiResponse("201", createApiResponse("Salvou!"));
-                apiResponses.addApiResponse("204", createApiResponse("Foi de vala!"));
+                apiResponses.addApiResponse("204", createApiResponse("Foi de vala! 👻👻"));
                 apiResponses.addApiResponse("400", createApiResponse("Deu ruim!"));
                 apiResponses.addApiResponse("401", createApiResponse("Pode não, brother!"));
                 apiResponses.addApiResponse("403", createApiResponse("Ta errado isso ai!"));
