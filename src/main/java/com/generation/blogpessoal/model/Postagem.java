@@ -15,35 +15,33 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-@Entity //essa classe vai virar uma entidade (tabela do banco de dados)
-@Table(name="tb_postagens") //vai nomear a tabela como tb_postagens lá no banco de dados
+@Entity
+@Table(name="tb_postagens")
 public class Postagem {
 	
-	@Id //define que esse campo vai ser a chave primaria da tabela
-	@GeneratedValue(strategy = GenerationType.IDENTITY) // define como a chave primaria vai ser implementada
-	//nesse caso, será criada de forma sequencial (1, 2, 3, 4 ...)
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	//validando o campo para que ele não possa ficar em branco
 	@NotBlank(message = "O atributo titulo é obrigatório")
-	//validando o tamanho minimo e maximo do campo
 	@Size(min = 5, max = 100, message = "O campo titulo deve ter entre 5 e 100 caracteres")
 	private String titulo;
 	
-	//validando o campo para que ele não possa ficar em branco
 	@NotBlank(message = "O atributo titulo é obrigatório")
-	//validando o tamanho minimo e maximo do campo
 	@Size(min = 10, max = 1000, message = "O campo titulo deve ter entre 10 e 1000 caracteres")
 	private String texto;
 	
-	@UpdateTimestamp // vai pegar a hora do banco de dados, e colocar automaticamente no campo
-	private LocalDateTime data; //LocalDateTime é um tipo de dado que já vem com o padrão de data configurado
+	@UpdateTimestamp
+	private LocalDateTime data;
 
-	@ManyToOne // criar o relacionamento de que muitas postagens pode pertencer a um tema
-	@JsonIgnoreProperties("postagem") // ignorando as postagens na lista de tema, pra não dar um loop infinito
+	@ManyToOne
+	@JsonIgnoreProperties("postagem")
 	private Tema tema;
 	
-	//Criando todos os Getters e Setters para a nossa model
+	@ManyToOne
+	@JsonIgnoreProperties("postagem")
+	private Usuario usuario;
+
 	public Long getId() {
 		return id;
 	}
@@ -82,6 +80,14 @@ public class Postagem {
 
 	public void setTema(Tema tema) {
 		this.tema = tema;
+	}
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
 	}
 	
 }
