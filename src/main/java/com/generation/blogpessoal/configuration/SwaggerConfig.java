@@ -20,7 +20,7 @@ public class SwaggerConfig {
                         .description("Projeto do blog pessoal feito em aula com a turma 74")
                         .version("v0.0.1")
                         .license(new License()
-                                .name("Thiago Faccipieri - Daniel - James² - Gabriela - Isa - Julia")
+                                .name("Thiago Faccipieri")
                                 .url("https://github.com/tjfaccipieri"))
                         .contact(new Contact()
                                 .name("Thiago Faccipieri")
