@@ -1,7 +1,10 @@
 package com.generation.blogpessoal.controller;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,13 +26,15 @@ import com.generation.blogpessoal.repository.PostagemRepository;
 import com.generation.blogpessoal.repository.TemaRepository;
 
 import jakarta.validation.Valid;
-
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 
 @RestController
 @RequestMapping("/postagens")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class PostagemController {
+	
+	private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 	
 	@Autowired
 	private PostagemRepository postagemRepository;
@@ -40,6 +45,24 @@ public class PostagemController {
 	@GetMapping
 	public ResponseEntity<List<Postagem>> getAll() {
 		return ResponseEntity.ok(postagemRepository.findAll());
+	}
+	
+	@GetMapping("/auto")
+	public SseEmitter autoPostagens() throws IOException {
+		SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+		emitters.add(emitter);
+		
+		emitter.onCompletion(() -> emitters.remove(emitter));
+		emitter.onTimeout(() -> emitters.remove(emitter));
+		emitter.onError((error) -> emitters.remove(emitter));
+		
+		emitter.send(SseEmitter.event().name("message").data(postagemRepository.findAll()));
+
+		return emitter;
+	}
+	
+	public void dispatchNewsItem(Postagem postagem) {
+	
 	}
 	
 	@GetMapping("/{id}")
@@ -56,10 +79,20 @@ public class PostagemController {
 	
 	@PostMapping
 	public ResponseEntity<Postagem> post(@Valid @RequestBody Postagem postagem) {
-		if (temaRepository.existsById(postagem.getTema().getId()))
+		if (temaRepository.existsById(postagem.getTema().getId())) {
+			List<SseEmitter> deadEmitters = new ArrayList<>();
+			emitters.forEach(emitter -> {
+				try {
+					emitter.send(SseEmitter.event().name("message").data(postagem));
+				} catch (Exception e) {
+					deadEmitters.add(emitter);
+				}
+			});
+			emitters.removeAll(deadEmitters);
 			return ResponseEntity.status(HttpStatus.CREATED)
 					.body(postagemRepository.save(postagem));
-		
+			
+		}
 		throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O Tema não existe!", null);
 	}
 	
